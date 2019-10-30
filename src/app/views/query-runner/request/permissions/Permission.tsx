@@ -1,14 +1,12 @@
 import { DetailsList, DetailsListLayoutMode, FontSizes, getId, IColumn,
-  Label, PrimaryButton, SelectionMode, styled, TooltipHost } from 'office-ui-fabric-react';
+  Label, PrimaryButton, SelectionMode, TooltipHost } from 'office-ui-fabric-react';
 import React, { useEffect, useState } from 'react';
-import { FormattedMessage, injectIntl } from 'react-intl';
-import { connect, shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { FormattedMessage } from 'react-intl';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 
 import { getAuthTokenSuccess, getConsentedScopesSuccess } from '../../../../services/actions/auth-action-creators';
 import { acquireNewAccessToken } from '../../../../services/graph-client/MsalService';
-import { classNames } from '../../../classnames';
 import { Monaco } from '../../../common';
-import { permissionStyles } from './Permission.styles';
 import { fetchScopes } from './util';
 
 export interface IPermission {
@@ -26,6 +24,7 @@ export function Permission({}) {
   const consentedScopes: string[] = useSelector((state: any) => state.consentedScopes);
   const [permissions, setPermissions ] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [sampleError, setError] = useState(false);
   const columns = [
     { key: 'value', name: 'Name', fieldName: 'value', minWidth: 100, maxWidth: 150 },
     { key: 'consentDisplayName', name: 'Function', fieldName: 'consentDisplayName', isResizable: true,
@@ -43,15 +42,20 @@ export function Permission({}) {
       );
     }
 
+  let errorMessage;
+
   useEffect(() => {
     setLoading(true);
     setPermissions([]);
+    setError(false);
 
     fetchScopes(sample)
       .then(res => { setLoading(false); setPermissions(res); })
       .catch((error) => {
+        setError(true);
         setLoading(false);
         setPermissions([]);
+        errorMessage = error;
       });
   }, [sample.sampleUrl]);
 
@@ -74,7 +78,6 @@ export function Permission({}) {
   };
 
   const renderItemColumn = (item: any, index: number | undefined, column: IColumn | undefined) => {
-    const classes = classNames(this.props);
     const hostId: string = getId('tooltipHost');
 
     if (column) {
@@ -145,10 +148,3 @@ export function Permission({}) {
     </div>
   );
 }
-
-// @ts-ignore
-const StyledPermission =  styled(Permission, permissionStyles);
-// @ts-ignore
-const IntlPermissions = injectIntl(StyledPermission);
-
-export default connect()(IntlPermissions);
