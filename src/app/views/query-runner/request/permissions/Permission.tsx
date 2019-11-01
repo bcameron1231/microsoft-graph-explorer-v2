@@ -19,13 +19,14 @@ export interface IPermission {
   consented: boolean;
 }
 
-export function Permission({}) {
+export function Permission(props: any) {
   const sample = useSelector((state: any) => state.sampleQuery, shallowEqual);
   const accessToken = useSelector((state: any) => state.authToken);
   const dispatch = useDispatch();
   const consentedScopes: string[] = useSelector((state: any) => state.consentedScopes);
   const [permissions, setPermissions ] = useState([]);
   const [loading, setLoading] = useState(false);
+  const classes = classNames(props);
   const columns = [
     { key: 'value', name: 'Name', fieldName: 'value', minWidth: 100, maxWidth: 150 },
     { key: 'consentDisplayName', name: 'Function', fieldName: 'consentDisplayName', isResizable: true,
@@ -74,7 +75,6 @@ export function Permission({}) {
   };
 
   const renderItemColumn = (item: any, index: number | undefined, column: IColumn | undefined) => {
-    const classes = classNames(this.props);
     const hostId: string = getId('tooltipHost');
 
     if (column) {
@@ -92,10 +92,7 @@ export function Permission({}) {
         case 'consented':
           const consented = !!item.consented;
           if (consented) {
-            return <Label style={{
-              fontSize: FontSizes.small,
-              fontStyle: 'italic'
-            }}
+            return <Label className={classes.consented}
             ><FormattedMessage id='Consented' /></Label>;
           } else {
             return <PrimaryButton onClick={() => handleConsent(item)}>
@@ -109,7 +106,7 @@ export function Permission({}) {
               content={item.consentDescription}
               id={hostId}
               calloutProps={{ gapSpace: 0 }}
-              styles={{ root: { display: 'inline-block' } }}
+              className={classes.consentDescription}
             >
               <span aria-labelledby={hostId}>
                 {item.consentDescription}
@@ -126,11 +123,11 @@ export function Permission({}) {
 
 
   return (
-    <div style={{ padding: 10, maxHeight: '350px', minHeight: '300px', overflowY: 'auto', overflowX: 'auto', }}>
+    <div className={classes.permissionsTab}>
       {loading && <Monaco body = {'Fetching permissions...'}/>}
       {permissions && !loading &&
-        <div style={{marginBottom: 120}}>
-          <Label style={{ fontWeight: 'bold', marginBottom: 5 }}>
+        <div className={classes.permissionsTable}>
+          <Label className={classes.permissionLabel}>
             <FormattedMessage id='Permissions' />&nbsp;({permissions.length})
           </Label>
           <DetailsList
