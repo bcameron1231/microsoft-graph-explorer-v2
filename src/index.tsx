@@ -57,7 +57,6 @@ const appState = store({
   },
   termsOfUse: true,
   theme: 'light',
-
 });
 
 msalApplication.acquireTokenSilent({ scopes: DEFAULT_USER_SCOPES.split(' ') }).then((authResponse: any) => {
